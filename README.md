@@ -10,12 +10,12 @@
 
 本项目由 **Rainbow 队** 协作完成，成员分工如下：
 
-### @CitrusAllergy 鲍鑫宇
+#### @CitrusAllergy 鲍鑫宇
 - **项目方案与文档**：PPT 初稿设计，数据科学与工程作品报告撰写，README.md 编写  
 - **算法与系统梳理**：完成项目整体实现流程与技术路线梳理  
 - **网页设计**：参与可视化网页功能设计与实现  
 
-### @water0417 李昕芮
+#### @water0417 李昕芮
 - **项目展示相关工作**：PPT 制作，项目演示视频录制与剪辑  
 - **数据工作**：负责 OpenDigger / GitHub 数据的获取与处理  
 - **前端与可视化**：开源项目社交图的可视化网页制作与交互设计  
@@ -36,6 +36,7 @@
 👉 相比传统关系型数据库，更适合**开源生态的动态演化分析**
 
 
+
 ### 🧠 2. 基于 OpenDigger 的影响力指标体系
 
 引入 **OpenDigger** 标准化指标作为核心分析维度，包括：
@@ -53,6 +54,7 @@
   - 社区结构演化  
 
 
+
 ### 🕸️ 3. 多维关系网络构建（EasyGraph）
 
 - 使用 **EasyGraph** 构建复杂的开源协作网络  
@@ -65,6 +67,7 @@
   - 影响力传播  
   - 社区发现  
   - 关键节点识别  
+
 
 
 ### 📊 4. 可交互的开源生态可视化
@@ -83,9 +86,11 @@
 
 提供友好、直观的分析入口。
 
+
 ---
 
 ## 📁 Project Structure | 项目结构（OpenSource-SocialGraph）
+
 
 ```text
 OpenSource-SocialGraph
@@ -110,6 +115,7 @@ OpenSource-SocialGraph
 └── README.md                   # 项目说明文档
 ```
 
+---
 ## ⚙️ Getting Started | 快速开始
 
 ### 1️⃣ 环境依赖
@@ -139,26 +145,30 @@ python graph_construction/build_graph.py
 ### 5️⃣ 启动系统
 python main.py
 
+
 ---
-### 🎯 Application Scenarios | 应用场景
+## 🎯 Application Scenarios | 应用场景
 - 📌 开源项目生态研究  
 - 📌 社区治理与维护者决策支持
 - 📌 开源贡献行为分析
 - 📌 数据科学 / 社交网络分析教学示例
 
+
 ---
-### 🧩 Future Work | 后续计划
+## 🧩 Future Work | 后续计划
 - 引入更多图算法与影响力模型
 - 支持多项目、跨社区对比分析
 - 提供 Web 化交互界面
 - 探索 AI 驱动的生态趋势预测
 
----
-### 🤝 Contributing
-欢迎通过 Issue 或 Pull Request 参与项目改进 🙌
 
 ---
-### 📄 License
+## 🤝 Contributing
+欢迎通过 Issue 或 Pull Request 参与项目改进 🙌
+
+
+---
+## 📄 License
 This project is licensed under the Apache-2.0 License.
 Please comply with the license when using or modifying this project.
 
