@@ -35,25 +35,19 @@
 
 👉 相比传统关系型数据库，更适合**开源生态的动态演化分析**
 
-
-
 ### 🧠 2. 基于 OpenDigger 的影响力指标体系
 
 引入 **OpenDigger** 标准化指标作为核心分析维度，包括：
-
 - 活跃度（Activity）  
 - 社区影响力（Community OpenRank）  
 - 全局影响力（Global OpenRank）  
 
 优势在于：
-
 - 避免仅以 Star / Fork 评价项目或开发者的片面性  
 - 支持对以下问题进行更精细刻画：
   - 项目生命周期  
   - 核心贡献者角色  
   - 社区结构演化  
-
-
 
 ### 🕸️ 3. 多维关系网络构建（EasyGraph）
 
@@ -68,29 +62,23 @@
   - 社区发现  
   - 关键节点识别  
 
-
-
 ### 📊 4. 可交互的开源生态可视化
 
 通过可视化方式直观呈现：
-
 - 项目协作结构  
 - 贡献者关系网络  
 - 指标随时间变化趋势  
 
 面向以下用户群体：
-
 - 研究者  
 - 社区维护者  
 - 开源学习者  
 
 提供友好、直观的分析入口。
 
-
 ---
 
 ## 📁 Project Structure | 项目结构（OpenSource-SocialGraph）
-
 
 ```text
 OpenSource-SocialGraph
@@ -145,14 +133,12 @@ python graph_construction/build_graph.py
 ### 5️⃣ 启动系统
 python main.py
 
-
 ---
 ## 🎯 Application Scenarios | 应用场景
 - 📌 开源项目生态研究  
 - 📌 社区治理与维护者决策支持
 - 📌 开源贡献行为分析
 - 📌 数据科学 / 社交网络分析教学示例
-
 
 ---
 ## 🧩 Future Work | 后续计划
@@ -161,15 +147,11 @@ python main.py
 - 提供 Web 化交互界面
 - 探索 AI 驱动的生态趋势预测
 
-
 ---
 ## 🤝 Contributing
 欢迎通过 Issue 或 Pull Request 参与项目改进 🙌
-
 
 ---
 ## 📄 License
 This project is licensed under the Apache-2.0 License.
 Please comply with the license when using or modifying this project.
-
-
