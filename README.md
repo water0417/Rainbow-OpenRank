@@ -112,7 +112,7 @@ OpenSource-SocialGraph
 ├── main.py                     # 项目主入口
 ├── requirements.txt            # Python 依赖
 └── README.md                   # 项目说明文档
----
+```
 
 ## ⚙️ Getting Started | 快速开始
 
@@ -128,6 +128,42 @@ pip install -r requirements.txt
 在 config/config.yaml 中配置以下信息：
 - GitHub Token
 - OpenDigger 数据源
-- IoTDB 连接信息 
+- IoTDB 连接信息
+
+### 3️⃣ 数据采集与存储
+bash
+python data_collection/github_fetch.py
+python data_collection/opendigger_fetch.py
+采集的数据将被统一写入 IoTDB，形成可持续更新的时序数据集。
+
+### 4️⃣ 构建关系网络
+python graph_construction/build_graph.py
+生成多维开源协作关系网络，用于后续分析与可视化。
+
+### 5️⃣ 启动系统
+python main.py
 
 ---
+### 🎯 Application Scenarios | 应用场景
+- 📌 开源项目生态研究  
+- 📌 社区治理与维护者决策支持
+- 📌 开源贡献行为分析
+- 📌 数据科学 / 社交网络分析教学示例
+
+---
+### 🧩 Future Work | 后续计划
+- 引入更多图算法与影响力模型
+- 支持多项目、跨社区对比分析
+- 提供 Web 化交互界面
+- 探索 AI 驱动的生态趋势预测
+
+---
+### 🤝 Contributing
+欢迎通过 Issue 或 Pull Request 参与项目改进 🙌
+
+---
+### 📄 License
+This project is licensed under the Apache-2.0 License.
+Please comply with the license when using or modifying this project.
+
+
