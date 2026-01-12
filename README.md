@@ -79,7 +79,7 @@
 
 ---
 
-## 📁 Project Structure | 项目结构（OpenSource-SocialGraph）
+## 📁 Project Structure | 项目结构
 
 ```text
 OpenSource-SocialGraph
