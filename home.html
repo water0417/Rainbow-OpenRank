@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RainbowSpy - 今日仓库推荐</title>
+<style>
+:root {
+--dark-bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+--dark-card-bg: rgba(30, 41, 59, 0.95);
+--dark-card-border: rgba(99, 102, 241, 0.3);
+--dark-card-hover-bg: rgba(45, 55, 72, 0.95);
+--dark-text-primary: #f8fafc;
+--dark-text-secondary: #cbd5e1;
+--dark-accent-color: #6366f1;
+--dark-accent-hover: #8b5cf6;
+--dark-btn-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+--dark-btn-hover: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+--dark-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+--dark-card-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
+--dark-border-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+--light-bg-gradient: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #e0f2fe 100%);
+--light-card-bg: rgba(255, 255, 255, 0.98);
+--light-card-border: rgba(99, 102, 241, 0.2);
+--light-card-hover-bg: rgba(248, 250, 252, 0.98);
+--light-text-primary: #0f172a;
+--light-text-secondary: #64748b;
+--light-accent-color: #6366f1;
+--light-accent-hover: #8b5cf6;
+--light-btn-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+--light-btn-hover: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+--light-shadow: 0 8px 32px rgba(99, 102, 241, 0.1);
+--light-card-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+--light-border-glow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+body {
+margin: 0;
+padding: 0;
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+background: var(--dark-bg-gradient);
+color: var(--dark-text-primary);
+min-height: 100vh;
+transition: all 0.3s ease;
+}
+body.light-theme {
+background: var(--light-bg-gradient);
+color: var(--light-text-primary);
+}
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+.header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 50px;
+padding: 30px 0;
+border-bottom: 1px solid var(--dark-card-border);
+position: relative;
+}
+.header::after {
+content: '';
+position: absolute;
+bottom: -1px;
+left: 0;
+width: 100%;
+height: 1px;
+background: linear-gradient(90deg, transparent, var(--dark-accent-color), transparent);
+opacity: 0.5;
+}
+body.light-theme .header {
+border-bottom-color: var(--light-card-border);
+}
+body.light-theme .header::after {
+background: linear-gradient(90deg, transparent, var(--light-accent-color), transparent);
+}
+.logo {
+display: flex;
+align-items: center;
+gap: 14px;
+font-size: 28px;
+font-weight: 800;
+color: var(--dark-accent-color);
+text-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+letter-spacing: -0.5px;
+}
+body.light-theme .logo {
+color: var(--light-accent-color);
+text-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+}
+.header-actions {
+display: flex;
+gap: 15px;
+align-items: center;
+}
+.theme-toggle {
+background: var(--dark-card-bg);
+border: 1px solid var(--dark-card-border);
+color: var(--dark-accent-color);
+font-size: 22px;
+cursor: pointer;
+padding: 12px;
+border-radius: 50%;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+body.light-theme .theme-toggle {
+background: var(--light-card-bg);
+border-color: var(--light-card-border);
+color: var(--light-accent-color);
+box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+.theme-toggle:hover {
+transform: rotate(15deg) scale(1.1);
+background: var(--dark-btn-gradient);
+color: white;
+border-color: var(--dark-accent-color);
+box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+body.light-theme .theme-toggle:hover {
+background: var(--light-btn-gradient);
+color: white;
+border-color: var(--light-accent-color);
+}
+.title {
+text-align: center;
+margin-bottom: 50px;
+padding: 0 20px;
+}
+.title h1 {
+font-size: 42px;
+margin-bottom: 15px;
+color: var(--dark-text-primary);
+font-weight: 800;
+letter-spacing: -1px;
+text-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+body.light-theme .title h1 {
+color: var(--light-text-primary);
+text-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+}
+.title p {
+font-size: 18px;
+color: var(--dark-text-secondary);
+max-width: 600px;
+margin: 0 auto;
+line-height: 1.6;
+}
+body.light-theme .title p {
+color: var(--light-text-secondary);
+}
+.ranking-container {
+display: flex;
+flex-direction: column;
+gap: 20px;
+}
+.repo-card {
+background: var(--dark-card-bg);
+border: 1px solid var(--dark-card-border);
+border-radius: 16px;
+padding: 24px;
+display: flex;
+gap: 24px;
+align-items: center;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+backdrop-filter: blur(12px);
+box-shadow: var(--dark-card-shadow);
+position: relative;
+overflow: hidden;
+}
+body.light-theme .repo-card {
+background: var(--light-card-bg);
+border-color: var(--light-card-border);
+box-shadow: var(--light-card-shadow);
+}
+.repo-card::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+height: 3px;
+background: var(--dark-btn-gradient);
+transform: scaleX(0);
+transition: transform 0.3s ease;
+}
+body.light-theme .repo-card::before {
+background: var(--light-btn-gradient);
+}
+.repo-card:hover {
+transform: translateY(-6px);
+box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+background: var(--dark-card-hover-bg);
+border-color: var(--dark-accent-color);
+}
+body.light-theme .repo-card:hover {
+background: var(--light-card-hover-bg);
+border-color: var(--light-accent-color);
+}
+.repo-card:hover::before {
+transform: scaleX(1);
+}
+.rank {
+font-size: 32px;
+font-weight: bold;
+color: var(--dark-accent-color);
+min-width: 40px;
+text-align: center;
+}
+body.light-theme .rank {
+color: var(--light-accent-color);
+}
+.repo-info {
+flex: 1;
+}
+.repo-name {
+font-size: 20px;
+font-weight: bold;
+margin-bottom: 5px;
+color: var(--dark-text-primary);
+}
+body.light-theme .repo-name {
+color: var(--light-text-primary);
+}
+.repo-owner {
+font-size: 14px;
+color: var(--dark-text-secondary);
+margin-bottom: 10px;
+}
+body.light-theme .repo-owner {
+color: var(--light-text-secondary);
+}
+.repo-description {
+font-size: 14px;
+color: var(--dark-text-secondary);
+margin-bottom: 15px;
+line-height: 1.5;
+}
+body.light-theme .repo-description {
+color: var(--light-text-secondary);
+}
+.repo-metrics {
+display: flex;
+gap: 20px;
+font-size: 12px;
+color: var(--dark-text-secondary);
+}
+body.light-theme .repo-metrics {
+color: var(--light-text-secondary);
+}
+.metric-item {
+display: flex;
+align-items: center;
+gap: 5px;
+}
+.repo-actions {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+.btn {
+padding: 12px 24px;
+background: var(--dark-btn-gradient);
+border: none;
+border-radius: 12px;
+color: #ffffff;
+font-size: 14px;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+text-decoration: none;
+text-align: center;
+box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+letter-spacing: 0.5px;
+}
+body.light-theme .btn {
+background: var(--light-btn-gradient);
+box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+.btn:hover {
+transform: translateY(-3px);
+box-shadow: 0 8px 24px rgba(99, 102, 241, 0.45);
+background: var(--dark-btn-hover);
+}
+body.light-theme .btn:hover {
+background: var(--light-btn-hover);
+}
+.btn:active {
+transform: translateY(-1px);
+}
+.search-container {
+margin: 40px 0 50px;
+text-align: center;
+position: relative;
+}
+.search-input {
+width: 550px;
+padding: 18px 24px;
+border: 2px solid var(--dark-card-border);
+border-radius: 50px;
+background: var(--dark-card-bg);
+color: var(--dark-text-primary);
+font-size: 16px;
+font-weight: 500;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+backdrop-filter: blur(8px);
+}
+body.light-theme .search-input {
+background: var(--light-card-bg);
+border-color: var(--light-card-border);
+color: var(--light-text-primary);
+box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+.search-input::placeholder {
+color: var(--dark-text-secondary);
+font-weight: 400;
+}
+body.light-theme .search-input::placeholder {
+color: var(--light-text-secondary);
+}
+.search-input:focus {
+outline: none;
+border-color: var(--dark-accent-color);
+box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 8px 24px rgba(99, 102, 241, 0.3);
+transform: translateY(-2px);
+}
+body.light-theme .search-input:focus {
+border-color: var(--light-accent-color);
+}
+.loading {
+text-align: center;
+padding: 40px;
+color: var(--dark-text-secondary);
+}
+body.light-theme .loading {
+color: var(--light-text-secondary);
+}
+body.light-theme .search-no-results {
+color: var(--light-text-secondary);
+}
+@media (max-width: 768px) {
+.repo-card {
+flex-direction: column;
+text-align: center;
+}
+.repo-actions {
+width: 100%;
+}
+.search-input {
+width: 100%;
+}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<div class="logo">
+<img src="./RainbowSpy.png" alt="RainbowSpy Logo"  height="40">
+</div>
+<div class="header-actions">
+<button class="theme-toggle" id="themeToggle" title="切换主题">
+🌙
+</button>
+</div>
+</div>
+<div class="title">
+<h1>今日仓库推荐</h1>
+<p>基于多维度潜力得分模型，为您推荐最具发展潜力的开源仓库</p>
+</div>
+<div class="search-container">
+<input type="text" class="search-input" placeholder="搜索仓库..." id="searchInput">
+</div>
+<div class="ranking-container" id="rankingContainer">
+<div class="loading">加载中...</div>
+</div>
+</div>
+<script>
+let topRepos = [];
+let allRepos = [];
+let currentTheme = 'dark';
+async function init() {
+await Promise.all([
+loadTopRepos(),
+loadAllRepos()
+]);
+renderRanking();
+initThemeToggle();
+initSearch();
+const savedTheme = localStorage.getItem('theme') || 'dark';
+currentTheme = savedTheme;
+document.body.className = currentTheme === 'light' ? 'light-theme' : '';
+}
+async function loadTopRepos() {
+try {
+const response = await fetch('./top_10_potential_repos.json');
+const data = await response.json();
+topRepos = data.top_10_repos;
+} catch (error) {
+console.error('加载Top 10仓库数据失败:', error);
+alert('加载Top 10仓库数据失败，请检查网络连接');
+}
+}
+async function loadAllRepos() {
+try {
+const response = await fetch('./all.json');
+const data = await response.json();
+allRepos = (data.repos_data || []).map(repo => {
+const basicInfo = repo.basic_info || {};
+const riskPrediction = repo.risk_prediction || {};
+return {
+repo_name: basicInfo.name || basicInfo.full_name || '',
+full_name: basicInfo.full_name || '',
+owner: basicInfo.owner || '',
+description: basicInfo.description || '',
+language: basicInfo.language || '',
+total_stars: basicInfo.stars || 0,
+total_forks: basicInfo.forks || 0,
+potential_score: riskPrediction.score || 0
+};
+});
+} catch (error) {
+console.error('加载所有仓库数据失败:', error);
+}
+}
+function renderRanking() {
+const container = document.getElementById('rankingContainer');
+container.innerHTML = '';
+topRepos.forEach((repo, index) => {
+const card = createRepoCard(repo, index + 1);
+container.appendChild(card);
+});
+}
+function createRepoCard(repo, rank) {
+const card = document.createElement('div');
+card.className = 'repo-card';
+card.innerHTML = `
+<div class="rank">${rank}</div>
+<div class="repo-info">
+<div class="repo-name">${repo.repo_name}</div>
+<div class="repo-owner">${repo.full_name}</div>
+<div class="repo-description">${repo.description}</div>
+<div class="repo-metrics">
+<div class="metric-item">⭐ ${repo.total_stars.toLocaleString()}</div>
+<div class="metric-item">🍴 ${repo.total_forks.toLocaleString()}</div>
+<div class="metric-item">💻 ${repo.language}</div>
+<div class="metric-item">📈 ${repo.potential_score.toFixed(2)}</div>
+</div>
+</div>
+<div class="repo-actions">
+<a href="#" class="btn" onclick="viewDetail('${repo.full_name}')">查看详情</a>
+<a href="index.html?repo=${encodeURIComponent(repo.full_name)}" class="btn">生成社交图</a>
+</div>
+`;
+return card;
+}
+function viewDetail(repoFullName) {
+window.location.href = `./index.html?repo=${encodeURIComponent(repoFullName)}`;
+}
+function initThemeToggle() {
+const toggleBtn = document.getElementById('themeToggle');
+toggleBtn.addEventListener('click', () => {
+currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+document.body.className = currentTheme === 'light' ? 'light-theme' : '';
+toggleBtn.innerHTML = currentTheme === 'dark' ? '🌙' : '☀️';
+localStorage.setItem('theme', currentTheme);
+});
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+currentTheme = savedTheme;
+document.body.className = currentTheme === 'light' ? 'light-theme' : '';
+toggleBtn.innerHTML = currentTheme === 'dark' ? '🌙' : '☀️';
+}
+}
+function initSearch() {
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', (e) => {
+const query = e.target.value.toLowerCase();
+filterRepos(query);
+});
+}
+function filterRepos(query) {
+const container = document.getElementById('rankingContainer');
+if (query) {
+container.innerHTML = '';
+const allSearchableRepos = [...new Map([...topRepos, ...allRepos].map(item => [item.full_name, item])).values()];
+const filteredRepos = allSearchableRepos.filter(repo => {
+const repoName = repo.repo_name || '';
+const fullName = repo.full_name || '';
+const description = repo.description || '';
+const owner = repo.owner || '';
+return repoName.toLowerCase().includes(query) ||
+fullName.toLowerCase().includes(query) ||
+description.toLowerCase().includes(query) ||
+owner.toLowerCase().includes(query);
+});
+filteredRepos.forEach((repo, index) => {
+const card = createRepoCard(repo, index + 1);
+container.appendChild(card);
+});
+if (filteredRepos.length === 0) {
+container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--dark-text-secondary);" class="search-no-results">没有找到匹配的仓库</div>';
+}
+} else {
+renderRanking();
+}
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

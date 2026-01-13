@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RainbowSpy社交图智能小助手</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+<script
+async
+defer
+src="http://localhost:8080/chat/api/embed?protocol=http&host=localhost:8080&token=9b410f9b94b2fb53">
+</script>
+<script>
+if (window.location.pathname === '/index.html' && !window.location.search) {
+window.location.href = '/home.html';
+}
+</script>
+<style>
+:root {
+--bg-primary: linear-gradient(135deg, #ffffff 0%, #f8fafc 30%, #e0f2fe 60%, #fbcfe8 100%);
+--bg-secondary: rgba(255, 255, 255, 0.8);
+--bg-tertiary: rgba(248, 250, 252, 0.9);
+--text-primary: #333333;
+--text-secondary: #64748b;
+--border-color: rgba(100, 149, 237, 0.2);
+--grid-color: rgba(100, 149, 237, 0.05);
+--accent-color: #6366f1;
+--accent-hover: #8b5cf6;
+--btn-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+--modal-bg: rgba(255, 255, 255, 0.95);
+--tooltip-bg: rgba(20, 20, 30, 0.9);
+}
+.dark-theme {
+--bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+--bg-secondary: rgba(15, 15, 25, 0.7);
+--bg-tertiary: rgba(30, 30, 40, 0.8);
+--text-primary: #ffffff;
+--text-secondary: #a0a0a0;
+--border-color: rgba(100, 200, 255, 0.2);
+--grid-color: rgba(50, 100, 200, 0.1);
+--accent-color: #667eea;
+--accent-hover: #764ba2;
+--btn-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+--modal-bg: rgba(20, 20, 30, 0.95);
+--tooltip-bg: rgba(20, 20, 30, 0.9);
+}
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: var(--bg-primary);
+color: var(--text-primary);
+overflow: hidden;
+transition: all 0.3s ease;
+}
+body::before {
+content: '';
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-image:
+linear-gradient(var(--grid-color) 1px, transparent 1px),
+linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+background-size: 50px 50px;
+z-index: -1;
+transition: all 0.3s ease;
+}
+.header {
+height: 70px;
+background: var(--bg-secondary);
+backdrop-filter: blur(10px);
+border-bottom: 1px solid var(--border-color);
+display: flex;
+align-items: center;
+padding: 0 20px;
+justify-content: space-between;
+box-shadow: 0 2px 20px rgba(100, 149, 237, 0.1);
+transition: all 0.3s ease;
+}
+.title {
+font-size: 24px;
+font-weight: 700;
+background: linear-gradient(135deg, #1e3a8a 0%, #6366f1 50%, #8b5cf6 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+.control-panel {
+display: flex;
+gap: 15px;
+align-items: center;
+}
+.repo-select {
+position: relative;
+z-index: 999;
+}
+.select-input {
+width: 300px;
+padding: 10px 15px;
+background: var(--bg-secondary);
+border: 1px solid var(--border-color);
+border-radius: 8px;
+color: var(--text-primary);
+font-size: 14px;
+cursor: pointer;
+transition: all 0.3s ease;
+z-index: 999;
+}
+.select-input:focus {
+outline: none;
+border-color: #6366f1;
+box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+z-index: 999;
+}
+.select-dropdown {
+position: absolute;
+top: 100%;
+left: 0;
+width: 100%;
+max-height: 300px;
+overflow-y: auto;
+background: var(--bg-tertiary);
+border: 1px solid var(--border-color);
+border-radius: 8px;
+margin-top: 5px;
+z-index: 9999;
+backdrop-filter: blur(10px);
+display: none;
+box-shadow: 0 10px 30px rgba(100, 149, 237, 0.2);
+z-index: 999;
+}
+.select-dropdown.show {
+display: block;
+z-index: 999;
+}
+.dropdown-item {
+padding: 10px 15px;
+cursor: pointer;
+transition: all 0.2s ease;
+border-bottom: 1px solid var(--border-color);
+color: var(--text-primary);
+}
+.dropdown-item:hover {
+background: rgba(99, 102, 241, 0.1);
+color: var(--accent-color);
+}
+.dropdown-item:last-child {
+border-bottom: none;
+}
+.github-link {
+color: var(--accent-color);
+text-decoration: none;
+transition: all 0.3s ease;
+word-break: break-all;
+}
+.github-link:hover {
+color: #4a89dc;
+text-decoration: underline;
+}
+.main-container {
+display: flex;
+height: calc(100vh - 70px);
+}
+.sidebar {
+width: 300px;
+background: var(--bg-secondary);
+backdrop-filter: blur(10px);
+border-right: 1px solid var(--border-color);
+padding: 20px;
+overflow-y: auto;
+color: var(--text-primary);
+}
+.graph-container {
+flex: 1;
+position: relative;
+overflow: hidden;
+margin-left: -20px;
+margin-right: -20px;
+}
+#graph {
+width: 105%;
+height: 105%;
+margin-left: -2.5%;
+margin-top: -2.5%;
+}
+.node {
+cursor: pointer;
+transition: all 0.3s ease;
+}
+@keyframes pulse {
+0% {
+box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+}
+70% {
+box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+}
+100% {
+box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+}
+}
+.glow-text {
+text-shadow: 0 0 10px rgba(102, 126, 234, 0.8),
+0 0 20px rgba(102, 126, 234, 0.5);
+}
+.btn:hover {
+transform: translateY(-3px);
+box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4),
+0 0 40px rgba(102, 126, 234, 0.2);
+}
+.modal.show {
+opacity: 1;
+visibility: visible;
+}
+.modal-content {
+transform: scale(0.95);
+transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal.show .modal-content {
+transform: scale(1);
+}
+.modal {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.5);
+backdrop-filter: blur(5px);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 2000;
+opacity: 0;
+visibility: hidden;
+transition: all 0.3s ease;
+}
+.modal.show {
+opacity: 1;
+visibility: visible;
+}
+.modal-content {
+background: var(--modal-bg);
+backdrop-filter: blur(15px);
+border: 1px solid var(--border-color);
+border-radius: 12px;
+padding: 25px;
+width: 90%;
+max-width: 800px;
+max-height: 80vh;
+overflow-y: auto;
+box-shadow: 0 10px 50px rgba(100, 149, 237, 0.2);
+position: relative;
+color: var(--text-primary);
+}
+.close-btn {
+position: absolute;
+top: 15px;
+right: 20px;
+background: none;
+border: none;
+color: var(--text-primary);
+font-size: 24px;
+cursor: pointer;
+transition: color 0.3s ease;
+}
+.close-btn:hover {
+color: #ff4757;
+}
+.repo-detail {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 20px;
+}
+.detail-section {
+background: var(--bg-tertiary);
+border-radius: 8px;
+padding: 15px;
+border: 1px solid var(--border-color);
+}
+.section-title {
+font-size: 16px;
+font-weight: 600;
+color: var(--accent-color);
+margin-bottom: 10px;
+border-bottom: 1px solid var(--border-color);
+padding-bottom: 5px;
+}
+.detail-item {
+margin-bottom: 8px;
+font-size: 14px;
+}
+.label {
+color: var(--text-secondary);
+margin-right: 5px;
+}
+.value {
+color: var(--text-primary);
+font-weight: 500;
+}
+.chart-container {
+height: 400px;
+margin-top: 10px;
+width: 100%;
+background: var(--bg-secondary);
+border-radius: 8px;
+padding: 10px;
+}
+#radarChart {
+height: 500px;
+}
+.btn {
+padding: 10px 20px;
+background: var(--btn-gradient);
+border: none;
+border-radius: 8px;
+color: #ffffff;
+font-size: 14px;
+cursor: pointer;
+transition: all 0.3s ease;
+box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+.btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+::-webkit-scrollbar {
+width: 8px;
+}
+::-webkit-scrollbar-track {
+background: rgba(20, 20, 30, 0.5);
+}
+::-webkit-scrollbar-thumb {
+background: rgba(102, 126, 234, 0.5);
+border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+background: rgba(102, 126, 234, 0.7);
+}
+.loading {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+text-align: center;
+}
+.spinner {
+width: 50px;
+height: 50px;
+border: 3px solid rgba(102, 126, 234, 0.3);
+border-top: 3px solid #667eea;
+border-radius: 50%;
+animation: spin 1s linear infinite;
+margin: 0 auto 15px;
+}
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+@media (max-width: 1024px) {
+.sidebar {
+width: 250px;
+}
+.repo-detail {
+grid-template-columns: 1fr;
+}
+}
+@media (max-width: 768px) {
+.sidebar {
+display: none;
+}
+.select-input {
+width: 200px;
+}
+}
+.theme-toggle {
+background: var(--bg-secondary);
+border: 1px solid var(--border-color);
+color: var(--accent-color);
+font-size: 22px;
+cursor: pointer;
+padding: 12px;
+border-radius: 50%;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+.theme-toggle:hover {
+transform: rotate(15deg) scale(1.1);
+background: var(--btn-gradient);
+color: white;
+border-color: var(--accent-color);
+box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+</style>
+</head>
+<body>
+<div class="header">
+<div style="display: flex; align-items: center; gap: 20px;">
+<img src="./RainbowSpy.png" alt="RaibowSpy Logo" class="header-logo" height="50">
+<a href="./home.html" class="btn" style="text-decoration: none;">返回仓库推荐</a>
+</div>
+<div class="control-panel">
+<div class="repo-select">
+<input type="text" class="select-input" placeholder="搜索或选择仓库..." id="repoInput">
+<div class="select-dropdown" id="repoDropdown"></div>
+</div>
+<button class="btn" id="refreshBtn">刷新</button>
+<button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+</div>
+</div>
+<div class="main-container">
+<div class="sidebar" id="sidebar">
+<div class="detail-section">
+<div class="section-title">当前仓库</div>
+<div id="currentRepoInfo">
+<div class="detail-item">
+<span class="label">仓库名:</span>
+<span class="value" id="currentRepoName">-</span>
+</div>
+<div class="detail-item">
+<span class="label">语言:</span>
+<span class="value" id="currentRepoLang">-</span>
+</div>
+<div class="detail-item">
+<span class="label">Star:</span>
+<span class="value" id="currentRepoStars">-</span>
+</div>
+<div class="detail-item">
+<span class="label">优先度:</span>
+<span class="value" id="currentRepoPriority">-</span>
+</div>
+</div>
+</div>
+<div class="detail-section">
+<div class="section-title">关联仓库数量</div>
+<div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+<label for="repoCount" style="font-size: 14px; color: #a0a0a0;">数量:</label>
+<input type="range" id="repoCount" min="5" max="100" value="20" style="flex: 1;">
+<span id="repoCountValue" style="font-size: 14px; font-weight: bold; color: #667eea;">20</span>
+</div>
+<button class="btn" id="applyCountBtn" style="margin-top: 15px; width: 100%;">应用</button>
+</div>
+<div class="detail-section">
+<div class="section-title">语言图例</div>
+<div id="languageLegend" style="margin-top: 10px;">
+</div>
+</div>
+</div>
+<div class="graph-container">
+<div class="loading" id="loading">
+<div class="spinner"></div>
+<div>加载中...</div>
+</div>
+<div id="graph"></div>
+</div>
+</div>
+<div class="modal" id="detailModal">
+<div class="modal-content">
+<button class="close-btn" id="closeModal">&times;</button>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+<h2 id="modalTitle">仓库详情</h2>
+<div style="display: flex; gap: 10px;">
+<a href="" target="_blank" class="btn" id="githubBtn">
+<span style="margin-right: 5px;">🔗</span>GitHub
+</a>
+<button class="btn" id="setAsCenterBtn">设为中心</button>
+</div>
+</div>
+<div class="repo-detail" id="repoDetailContent">
+</div>
+</div>
+</div>
+<script>
+let allRepos = [];
+let priorityData = [];
+let similarityData = [];
+let topRepos = []; 
+let currentRepo = null;
+let myChart = null;
+let repoCount = 20; 
+async function init() {
+await loadData();
+initDropdown();
+initGraph();
+if (allRepos.length > 0) {
+selectRepo(allRepos[0].basic_info.full_name);
+}
+}
+async function loadData() {
+try {
+const allResponse = await fetch('all.json');
+const allData = await allResponse.json();
+allRepos = allData.repos_data;
+const priorityResponse = await fetch('priority.csv');
+const priorityText = await priorityResponse.text();
+priorityData = parseCSV(priorityText);
+const similarityResponse = await fetch('similarity.csv');
+const similarityText = await similarityResponse.text();
+similarityData = parseSimilarityCSV(similarityText);
+const topReposResponse = await fetch('top_10_potential_repos.json');
+const topReposData = await topReposResponse.json();
+topRepos = topReposData.top_10_repos;
+document.getElementById('loading').style.display = 'none';
+} catch (error) {
+console.error('加载数据失败:', error);
+alert('加载数据失败，请检查文件路径');
+}
+}
+function parseCSV(csvText) {
+csvText = csvText.trim().replace(/^\ufeff/, '');
+const result = [];
+let currentLine = '';
+let inQuotes = false;
+for (let i = 0; i < csvText.length; i++) {
+const char = csvText[i];
+const nextChar = csvText[i + 1];
+if (char === '"') {
+if (nextChar === '"') {
+currentLine += '"';
+i++;
+} else {
+inQuotes = !inQuotes;
+}
+} else if (char === '\n' && !inQuotes) {
+result.push(currentLine.trim());
+currentLine = '';
+} else {
+currentLine += char;
+}
+}
+if (currentLine.trim()) {
+result.push(currentLine.trim());
+}
+if (result.length === 0) {
+return [];
+}
+const headers = [];
+let currentValue = '';
+let titleInQuotes = false;
+for (let i = 0; i < result[0].length; i++) {
+const char = result[0][i];
+const nextChar = result[0][i + 1];
+if (char === '"') {
+if (nextChar === '"') {
+currentValue += '"';
+i++;
+} else {
+titleInQuotes = !titleInQuotes;
+}
+} else if (char === ',' && !titleInQuotes) {
+headers.push(currentValue.trim());
+currentValue = '';
+} else {
+currentValue += char;
+}
+}
+headers.push(currentValue.trim());
+console.log('CSV Headers:', headers);
+if (!headers.includes('final_priority_score')) {
+console.warn('final_priority_score field not found in CSV headers');
+console.log('Available headers:', headers);
+}
+return result.slice(1).map((line, lineIndex) => {
+if (!line.trim()) return {};
+const values = [];
+let currentValue = '';
+let inQuotes = false;
+for (let i = 0; i < line.length; i++) {
+const char = line[i];
+const nextChar = line[i + 1];
+if (char === '"') {
+if (nextChar === '"') {
+currentValue += '"';
+i++;
+} else {
+inQuotes = !inQuotes;
+}
+} else if (char === ',' && !inQuotes) {
+values.push(currentValue.trim());
+currentValue = '';
+} else {
+currentValue += char;
+}
+}
+values.push(currentValue.trim());
+const obj = {};
+headers.forEach((header, index) => {
+obj[header] = values[index] || '';
+});
+if (lineIndex < 5) {
+console.log(`CSV Line ${lineIndex + 1}:`, obj);
+console.log(`Final Priority Score for line ${lineIndex + 1}:`, obj.final_priority_score);
+}
+return obj;
+}).filter(obj => Object.keys(obj).length > 0);
+}
+function parseCSVLine(line) {
+const result = [];
+let current = '';
+let inQuotes = false;
+for (let i = 0; i < line.length; i++) {
+const char = line[i];
+if (char === '"') {
+inQuotes = !inQuotes;
+} else if (char === ',' && !inQuotes) {
+result.push(current.trim());
+current = '';
+} else {
+current += char;
+}
+}
+result.push(current.trim());
+return result;
+}
+function parseSimilarityCSV(csvText) {
+const lines = csvText.split('\n');
+const repos = lines[0].split(',');
+const data = [];
+for (let i = 1; i < lines.length; i++) {
+const values = lines[i].split(',');
+const repoName = values[0];
+const similarities = {};
+for (let j = 1; j < values.length; j++) {
+similarities[repos[j]] = parseFloat(values[j]);
+}
+data.push({ repoName, similarities });
+}
+return data;
+}
+function initDropdown() {
+const input = document.getElementById('repoInput');
+const dropdown = document.getElementById('repoDropdown');
+input.addEventListener('input', () => {
+const value = input.value.toLowerCase();
+if (value.trim() === '') {
+dropdown.innerHTML = '';
+dropdown.classList.remove('show');
+return;
+}
+const filtered = allRepos.filter(repo =>
+repo.basic_info.full_name.toLowerCase().includes(value)
+);
+dropdown.innerHTML = '';
+filtered.slice(0, 20).forEach(repo => { 
+const item = document.createElement('div');
+item.className = 'dropdown-item';
+item.textContent = repo.basic_info.full_name;
+item.addEventListener('click', (e) => {
+e.preventDefault();
+e.stopPropagation();
+selectRepo(repo.basic_info.full_name);
+input.value = repo.basic_info.full_name;
+dropdown.classList.remove('show');
+});
+dropdown.appendChild(item);
+});
+dropdown.classList.add('show');
+});
+input.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') {
+const value = input.value.trim();
+if (value) {
+const repo = allRepos.find(r => r.basic_info.full_name.toLowerCase() === value.toLowerCase());
+if (repo) {
+selectRepo(repo.basic_info.full_name);
+dropdown.classList.remove('show');
+} else {
+const filtered = allRepos.filter(repo =>
+repo.basic_info.full_name.toLowerCase().includes(value.toLowerCase())
+);
+if (filtered.length > 0) {
+selectRepo(filtered[0].basic_info.full_name);
+input.value = filtered[0].basic_info.full_name;
+dropdown.classList.remove('show');
+}
+}
+}
+}
+});
+document.addEventListener('click', (e) => {
+if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+dropdown.classList.remove('show');
+}
+});
+}
+function selectRepo(fullName) {
+currentRepo = allRepos.find(repo => repo.basic_info.full_name === fullName);
+if (!currentRepo) return;
+updateSidebarInfo();
+generateGraph();
+}
+function updateSidebarInfo() {
+const priority = priorityData.find(item => item.repo_name === currentRepo.basic_info.full_name);
+document.getElementById('currentRepoName').textContent = currentRepo.basic_info.full_name;
+document.getElementById('currentRepoLang').textContent = currentRepo.basic_info.language || '未知';
+document.getElementById('currentRepoStars').textContent = currentRepo.metrics.star_count.toLocaleString();
+document.getElementById('currentRepoPriority').textContent = priority ? priority.final_priority_score : '未知';
+}
+function initGraph() {
+const chartDom = document.getElementById('graph');
+myChart = echarts.init(chartDom);
+window.addEventListener('resize', () => {
+myChart.resize();
+});
+}
+function generateGraph() {
+if (!currentRepo || !myChart) return;
+const similarity = similarityData.find(item => item.repoName === currentRepo.basic_info.full_name);
+if (!similarity) return;
+const similarRepos = Object.entries(similarity.similarities)
+.filter(([repoName, score]) => repoName !== currentRepo.basic_info.full_name)
+.sort((a, b) => b[1] - a[1])
+.slice(0, repoCount);
+const nodes = [
+{
+id: currentRepo.basic_info.full_name,
+name: currentRepo.basic_info.repo_name,
+value: getPriority(currentRepo.basic_info.full_name),
+symbolSize: 70,
+itemStyle: {
+color: getLanguageColor(currentRepo.basic_info.language),
+shadowBlur: 30,
+shadowColor: getLanguageColor(currentRepo.basic_info.language),
+shadowOffsetX: 0,
+shadowOffsetY: 0,
+borderColor: '#ffffff',
+borderWidth: 2
+},
+label: {
+show: true,
+color: '#fff',
+fontWeight: 'bold',
+fontSize: 14,
+offset: [0, -10]
+},
+category: 0,
+draggable: true
+}
+];
+similarRepos.forEach(([repoName, score]) => {
+const repo = allRepos.find(r => r.basic_info.full_name === repoName);
+if (repo) {
+const nodeColor = getLanguageColor(repo.basic_info.language);
+nodes.push({
+id: repoName,
+name: repo.basic_info.repo_name,
+value: getPriority(repoName),
+symbolSize: 25 + score * 60,
+itemStyle: {
+color: nodeColor,
+shadowBlur: 15,
+shadowColor: nodeColor,
+shadowOffsetX: 0,
+shadowOffsetY: 0,
+opacity: 0.7 + score * 0.3,
+borderColor: '#ffffff',
+borderWidth: 1
+},
+label: {
+show: score > 0.45,
+color: '#fff',
+fontSize: 12,
+offset: [0, 5],
+formatter: function(params) {
+return params.name.length > 15 ? params.name.substring(0, 15) + '...' : params.name;
+}
+},
+category: 1,
+draggable: true,
+similarityScore: score
+});
+}
+});
+const links = similarRepos.map(([repoName, score]) => {
+const targetRepo = allRepos.find(r => r.basic_info.full_name === repoName);
+return {
+source: currentRepo.basic_info.full_name,
+target: repoName,
+value: score,
+lineStyle: {
+width: score * 6,
+color: {
+type: 'linear',
+x: 0,
+y: 0,
+x2: 1,
+y2: 1,
+colorStops: [{
+offset: 0, color: getLanguageColor(currentRepo.basic_info.language)
+}, {
+offset: 1, color: getLanguageColor(targetRepo?.basic_info.language)
+}]
+},
+opacity: 0.7,
+curveness: 0.2
+},
+emphasis: {
+lineStyle: {
+width: score * 8,
+opacity: 0.9
+}
+}
+};
+});
+const option = {
+backgroundColor: 'transparent',
+tooltip: {
+trigger: 'item',
+backgroundColor: 'rgba(20, 20, 30, 0.95)',
+borderColor: 'rgba(100, 200, 255, 0.3)',
+borderWidth: 1,
+textStyle: {
+color: '#ffffff'
+},
+transitionDuration: 0.3,
+formatter: function(params) {
+if (params.dataType === 'edge') {
+return `
+<div style="padding: 8px;">
+<div style="font-weight: bold; margin-bottom: 5px;">关联信息</div>
+<div>关联度: <span style="color: #667eea; font-weight: 600;">${params.data.value.toFixed(3)}</span></div>
+</div>
+`;
+} else {
+const repo = allRepos.find(r => r.basic_info.full_name === params.data.id);
+const isCurrent = params.data.id === currentRepo.basic_info.full_name;
+return `
+<div style="padding: 8px;">
+<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">${params.data.name}</div>
+<div><span style="color: #a0a0a0;">仓库:</span> ${repo?.basic_info.full_name}</div>
+<div><span style="color: #a0a0a0;">语言:</span> ${repo?.basic_info.language || '未知'}</div>
+<div><span style="color: #a0a0a0;">Star:</span> ${repo?.metrics.star_count.toLocaleString() || '未知'}</div>
+<div><span style="color: #a0a0a0;">优先度:</span> ${getPriority(params.data.id).toFixed(2)}</div>
+<div><span style="color: #a0a0a0;">关联度:</span> <span style="color: #667eea; font-weight: 600;">${isCurrent ? '1.000' : similarity.similarities[params.data.id].toFixed(3)}</span></div>
+</div>
+`;
+}
+}
+},
+legend: {
+data: ['当前仓库', '关联仓库'],
+textStyle: {
+color: '#fff',
+fontSize: 12
+},
+top: 20,
+right: 20,
+backgroundColor: 'rgba(20, 20, 30, 0.8)',
+borderRadius: 8,
+padding: [8, 15]
+},
+series: [
+{
+name: '社交图',
+type: 'graph',
+layout: 'force',
+data: nodes,
+links: links,
+categories: [
+{
+name: '当前仓库',
+itemStyle: {
+color: '#667eea'
+}
+},
+{
+name: '关联仓库',
+itemStyle: {
+color: '#764ba2'
+}
+}
+],
+force: {
+repulsion: 1200,
+gravity: 0.08,
+edgeLength: 180,
+friction: 0.6
+},
+emphasis: {
+focus: 'adjacency',
+lineStyle: {
+width: 12,
+opacity: 0.9
+},
+itemStyle: {
+shadowBlur: 40,
+shadowColor: '#ffffff'
+},
+label: {
+show: true,
+fontSize: 13,
+color: '#ffffff',
+backgroundColor: 'rgba(20, 20, 30, 0.8)',
+borderRadius: 4,
+padding: [2, 6]
+}
+},
+label: {
+position: 'top',
+formatter: '{b}'
+},
+lineStyle: {
+type: 'solid',
+curveness: 0.3
+},
+animationDuration: 2500,
+animationEasing: 'elasticOut',
+animationEasingUpdate: 'cubicOut',
+animationDelay: function(idx) {
+return idx * 30;
+},
+animationDelayUpdate: function(idx) {
+return idx * 10;
+}
+}
+]
+};
+myChart.setOption(option);
+myChart.off('click');
+myChart.on('click', 'series', function(params) {
+if (params.dataType === 'node') {
+showRepoDetail(params.data.id);
+}
+});
+}
+function getPriority(repoName) {
+if (!repoName) {
+console.warn('Repo name is undefined');
+return 0;
+}
+const priority = priorityData.find(item =>
+item.repo_name && repoName &&
+item.repo_name.toLowerCase() === repoName.toLowerCase()
+);
+if (priority) {
+if (priority.final_priority_score) {
+const score = parseFloat(priority.final_priority_score);
+console.log('Priority found for', repoName, ':', score);
+return score;
+} else {
+console.warn('final_priority_score not found for repo:', repoName);
+console.log('Priority data:', priority);
+}
+} else {
+console.warn('Priority data not found for repo:', repoName);
+if (priorityData.length > 0) {
+console.log('Sample priorityData:', priorityData.slice(0, 3));
+}
+}
+return 0;
+}
+function getLanguageColor(language) {
+const isDarkTheme = document.body.classList.contains('dark-theme');
+const darkColorMap = {
+'JavaScript': '#ffd3b6', 
+'Python': '#ffaaa5', 
+'Java': '#ff8c94', 
+'TypeScript': '#a8e6cf', 
+'Go': '#dcedc1', 
+'C++': '#ffd93d', 
+'C': '#ff9a76', 
+'C#': '#84a59d', 
+'Ruby': '#f7b801', 
+'PHP': '#f6bd60', 
+'Swift': '#f5cac3', 
+'Kotlin': '#f28482', 
+'Rust': '#81b29a', 
+'Dart': '#f8edeb', 
+'Shell': '#9a8c98', 
+'HTML': '#c9ada7', 
+'CSS': '#d8e2dc', 
+'Markdown': '#e2e2e2', 
+'JSON': '#f0efeb', 
+'0': '#e9ecef' 
+};
+const lightColorMap = {
+'JavaScript': '#ffd3b6', 
+'Python': '#ffaaa5', 
+'Java': '#ff8c94', 
+'TypeScript': '#a8e6cf', 
+'Go': '#dcedc1', 
+'C++': '#ffd93d', 
+'C': '#ff9a76', 
+'C#': '#84a59d', 
+'Ruby': '#f7b801', 
+'PHP': '#f6bd60', 
+'Swift': '#f5cac3', 
+'Kotlin': '#f28482', 
+'Rust': '#81b29a', 
+'Dart': '#4CAF50', 
+'Shell': '#2196F3', 
+'HTML': '#1E88E5', 
+'CSS': '#1565C0', 
+'Markdown': '#74c0fc', 
+'JSON': '#43A047', 
+'0': '#efefe6' 
+};
+const colorMap = isDarkTheme ? darkColorMap : lightColorMap;
+return colorMap[language] || (isDarkTheme ? '#f8f9fa' : '#ababaf'); 
+}
+function showRepoDetail(repoName) {
+console.log('showRepoDetail called with repoName:', repoName);
+if (allRepos.length > 0) {
+console.log('Sample repo name from allRepos:', allRepos[0].basic_info.full_name);
+}
+const repo = allRepos.find(r => r.basic_info.full_name === repoName);
+if (!repo) {
+console.error('Repo not found:', repoName);
+return;
+}
+const priority = priorityData.find(item =>
+item.repo_name && repoName &&
+item.repo_name.toLowerCase() === repoName.toLowerCase()
+);
+console.log('Priority data found:', priority);
+const content = `
+<div class="detail-section">
+<div class="section-title">基本信息</div>
+<div class="detail-item"><span class="label">仓库名:</span><span class="value">${repo.basic_info.full_name}</span></div>
+<div class="detail-item"><span class="label">所有者:</span><span class="value">${repo.basic_info.owner}</span></div>
+<div class="detail-item"><span class="label">语言:</span><span class="value">${repo.basic_info.language || '未知'}</span></div>
+<div class="detail-item"><span class="label">描述:</span><span class="value">${repo.basic_info.description ? (repo.basic_info.description.length > 100 ? repo.basic_info.description.substring(0, 100) + '...' : repo.basic_info.description) : '无'}</span></div>
+<div class="detail-item"><span class="label">GitHub链接:</span><span class="value"><a href="${repo.basic_info.html_url}" target="_blank" class="github-link">${repo.basic_info.html_url}</a></span></div>
+<div class="detail-item"><span class="label">创建时间:</span><span class="value">${repo.timeline.created_at}</span></div>
+<div class="detail-item"><span class="label">更新时间:</span><span class="value">${repo.timeline.updated_at}</span></div>
+</div>
+<div class="detail-section">
+<div class="section-title">指标数据</div>
+<div class="detail-item"><span class="label">Star:</span><span class="value">${repo.metrics.star_count.toLocaleString()}</span></div>
+<div class="detail-item"><span class="label">Fork:</span><span class="value">${repo.metrics.fork_count.toLocaleString()}</span></div>
+<div class="detail-item"><span class="label">订阅者:</span><span class="value">${repo.metrics.subscriber_count.toLocaleString()}</span></div>
+<div class="detail-item"><span class="label">开放问题:</span><span class="value">${repo.metrics.open_issues_count}</span></div>
+<div class="detail-item"><span class="label">仓库大小:</span><span class="value">${repo.metrics.size_kb} KB</span></div>
+<div class="detail-item"><span class="label">关注者:</span><span class="value">${repo.metrics.watchers_count.toLocaleString()}</span></div>
+</div>
+<div class="detail-section">
+<div class="section-title">活跃度</div>
+<div class="detail-item"><span class="label">总提交:</span><span class="value">${repo.activity.commits_total.toLocaleString()}</span></div>
+<div class="detail-item"><span class="label">总PR:</span><span class="value">${repo.activity.prs_total}</span></div>
+<div class="detail-item"><span class="label">合并PR:</span><span class="value">${repo.activity.prs_merged}</span></div>
+<div class="detail-item"><span class="label">贡献者:</span><span class="value">${repo.activity.contributors_total.toLocaleString()}</span></div>
+<div class="detail-item"><span class="label">活跃度得分:</span><span class="value">${repo.activity.activity_score.toFixed(2)}</span></div>
+<div class="detail-item"><span class="label">分析周期:</span><span class="value">${repo.activity.analysis_period_days} 天</span></div>
+</div>
+<div class="detail-section">
+<div class="section-title">优先度分析</div>
+<div class="detail-item"><span class="label">最终得分:</span><span class="value">${priority && priority.final_priority_score ? priority.final_priority_score : '未知'}</span></div>
+<div class="detail-item"><span class="label">基础强度:</span><span class="value">${priority && priority.basic_strength_score ? priority.basic_strength_score : '未知'}</span></div>
+<div class="detail-item"><span class="label">时序动态:</span><span class="value">${priority && priority.temporal_dynamic_score ? priority.temporal_dynamic_score : '未知'}</span></div>
+<div class="detail-item"><span class="label">关系增强:</span><span class="value">${priority && priority.relationship_enhancement_score ? priority.relationship_enhancement_score : '未知'}</span></div>
+<div class="detail-item"><span class="label">OpenRank:</span><span class="value">${priority && priority.norm_openrank ? priority.norm_openrank : '未知'}</span></div>
+<div class="detail-item"><span class="label">生态关联:</span><span class="value">${priority && priority.ecosystem_correlation ? priority.ecosystem_correlation : '未知'}</span></div>
+</div>
+<div class="detail-section" style="grid-column: 1 / -1;">
+<div class="section-title">OpenRank构成</div>
+<div class="chart-container" id="openrankChart"></div>
+</div>
+<div class="detail-section" style="grid-column: 1 / -1;">
+<div class="section-title">多维竞争力雷达图</div>
+<div class="chart-container" id="radarChart"></div>
+</div>
+<div class="detail-section" style="grid-column: 1 / -1;">
+<div class="section-title">贡献者分布</div>
+<div class="chart-container" id="contributorChart"></div>
+</div>
+<div class="detail-section" style="grid-column: 1 / -1;">
+<div class="section-title">仓库词云</div>
+<div class="chart-container" id="wordcloudChart"></div>
+</div>
+`;
+document.getElementById('modalTitle').textContent = `${repo.basic_info.repo_name} 详情`;
+document.getElementById('repoDetailContent').innerHTML = content;
+document.getElementById('detailModal').classList.add('show');
+const githubBtn = document.getElementById('githubBtn');
+if (githubBtn) {
+githubBtn.href = repo.basic_info.html_url;
+}
+setTimeout(() => {
+console.log('Current repoName:', repoName);
+console.log('OpenRank chart container exists:', document.getElementById('openrankChart') !== null);
+console.log('Radar chart container exists:', document.getElementById('radarChart') !== null);
+console.log('Wordcloud chart container exists:', document.getElementById('wordcloudChart') !== null);
+console.log('Contributor chart container exists:', document.getElementById('contributorChart') !== null);
+createOpenRankChart(null);
+createRadarChart(null);
+createWordCloudChart(null);
+createContributorChart(repo);
+}, 300);
+}
+function createOpenRankChart(openrankData) {
+const chartDom = document.getElementById('openrankChart');
+if (!chartDom) return;
+const chart = echarts.init(chartDom);
+console.log('Creating OpenRank chart with data:', openrankData);
+let repoName = '';
+if (openrankData && openrankData.repo_name) {
+repoName = openrankData.repo_name;
+} else {
+const modalTitle = document.getElementById('modalTitle');
+if (modalTitle) {
+repoName = modalTitle.textContent.replace(' 详情', '');
+}
+}
+console.log('Current repo for OpenRank:', repoName);
+let priorityItem = null;
+if (repoName) {
+priorityItem = priorityData.find(item =>
+item.repo_name &&
+item.repo_name.toLowerCase() === repoName.toLowerCase()
+);
+}
+console.log('Priority item found:', priorityItem);
+let baseScore = 30;
+let temporalScore = 30;
+let relationshipScore = 40;
+if (priorityItem) {
+baseScore = parseFloat(priorityItem.basic_strength_score) || 30;
+temporalScore = parseFloat(priorityItem.temporal_dynamic_score) || 30;
+relationshipScore = parseFloat(priorityItem.relationship_enhancement_score) || 40;
+console.log('Using real scores:', baseScore, temporalScore, relationshipScore);
+} else {
+console.log('Using default scores:');
+}
+const themeColor = getThemeColor();
+const isDarkTheme = document.body.classList.contains('dark-theme');
+const backgroundColor = isDarkTheme ? 'rgba(30, 30, 40, 0.5)' : 'rgba(248, 250, 252, 0.95)';
+baseScore = Math.max(0, baseScore);
+temporalScore = Math.max(0, temporalScore);
+relationshipScore = Math.max(0, relationshipScore);
+const option = {
+backgroundColor: backgroundColor,
+tooltip: {
+trigger: 'item',
+formatter: '{a} <br/>{b}: {c} ({d}%)',
+backgroundColor: themeColor.tooltipBg,
+borderColor: themeColor.tooltipBorder,
+textStyle: {
+color: '#fff'
+}
+},
+legend: {
+orient: 'vertical',
+left: 10,
+data: ['基础分', '时序分', '关系分'],
+textStyle: {
+color: '#ffffff',
+fontSize: 12
+}
+},
+series: [
+{
+name: 'OpenRank构成',
+type: 'pie',
+radius: ['40%', '70%'],
+center: ['60%', '50%'],
+avoidLabelOverlap: false,
+itemStyle: {
+borderRadius: 10,
+borderColor: 'rgba(30, 30, 40, 0.5)',
+borderWidth: 2
+},
+label: {
+show: false,
+position: 'center'
+},
+emphasis: {
+label: {
+show: true,
+fontSize: 20,
+fontWeight: 'bold',
+color: '#fff'
+}
+},
+labelLine: {
+show: false
+},
+data: [
+{
+value: baseScore,
+name: '基础分',
+itemStyle: { color: '#667eea' }
+},
+{
+value: temporalScore,
+name: '时序分',
+itemStyle: { color: '#764ba2' }
+},
+{
+value: relationshipScore,
+name: '关系分',
+itemStyle: { color: '#f093fb' }
+}
+]
+}
+]
+};
+chart.setOption(option);
+}
+function createRadarChart(radarData) {
+const chartDom = document.getElementById('radarChart');
+if (!chartDom) return;
+const chart = echarts.init(chartDom);
+console.log('Creating Radar chart with data:', radarData);
+let repoName = '';
+const modalTitle = document.getElementById('modalTitle');
+if (modalTitle) {
+repoName = modalTitle.textContent.replace(' 详情', '');
+}
+console.log('Current repo for Radar chart:', repoName);
+const dimensions = [
+{ name: '代码质量', max: 10 },
+{ name: '社区活跃度', max: 10 },
+{ name: '成长潜力', max: 10 },
+{ name: '生态影响力', max: 10 },
+{ name: '贡献者质量', max: 10 },
+{ name: '文档完整性', max: 10 },
+{ name: '星标增长', max: 10 },
+{ name: '协作密度', max: 10 }
+];
+const currentRepoData = [
+{ name: '代码质量', value: 0.7 * 10, raw_value: 0.07 },
+{ name: '社区活跃度', value: 6, raw_value: 9 },
+{ name: '成长潜力', value: 8, raw_value: 200000 },
+{ name: '生态影响力', value: 7, raw_value: 50000 },
+{ name: '贡献者质量', value: 8.5, raw_value: 0.85 },
+{ name: '文档完整性', value: 7.5, raw_value: 75000 },
+{ name: '星标增长', value: 9, raw_value: 1300 },
+{ name: '协作密度', value: 6.5, raw_value: 0.6 }
+];
+const industryAvgData = [
+{ name: '代码质量', value: 5, raw_value: 0.05 },
+{ name: '社区活跃度', value: 5, raw_value: 7.5 },
+{ name: '成长潜力', value: 5, raw_value: 100000 },
+{ name: '生态影响力', value: 5, raw_value: 10000 },
+{ name: '贡献者质量', value: 5, raw_value: 0.5 },
+{ name: '文档完整性', value: 5, raw_value: 50000 },
+{ name: '星标增长', value: 5, raw_value: 500 },
+{ name: '协作密度', value: 5, raw_value: 0.4 }
+];
+if (topRepos && topRepos.length > 0) {
+const repoData = topRepos.find(repo =>
+repo.repo_name &&
+repo.repo_name.toLowerCase() === repoName.toLowerCase()
+);
+console.log('Repo data found:', repoData);
+if (repoData && repoData.normalized_slopes) {
+currentRepoData.find(item => item.name === '星标增长').value = (repoData.normalized_slopes.stars || 0) * 10;
+currentRepoData.find(item => item.name === '星标增长').raw_value = repoData.slopes.stars || 0;
+currentRepoData.find(item => item.name === '贡献者质量').value = (repoData.normalized_slopes.contributor || 0) * 10;
+currentRepoData.find(item => item.name === '贡献者质量').raw_value = repoData.slopes.contributor || 0;
+currentRepoData.find(item => item.name === '社区活跃度').value = (repoData.normalized_slopes.activity || 0) * 10;
+currentRepoData.find(item => item.name === '社区活跃度').raw_value = repoData.slopes.activity || 0;
+currentRepoData.find(item => item.name === '协作密度').value = (repoData.normalized_slopes.collaboration || 0) * 10;
+currentRepoData.find(item => item.name === '协作密度').raw_value = repoData.slopes.collaboration || 0;
+}
+}
+const indicator = dimensions;
+const themeColor = getThemeColor();
+const isDarkTheme = document.body.classList.contains('dark-theme');
+const backgroundColor = isDarkTheme ? 'rgba(30, 30, 40, 0.5)' : 'rgba(248, 250, 252, 0.95)';
+const option = {
+backgroundColor: backgroundColor,
+tooltip: {
+trigger: 'item',
+backgroundColor: themeColor.tooltipBg,
+borderColor: themeColor.tooltipBorder,
+textStyle: {
+color: '#fff'
+}
+},
+legend: {
+data: ['当前仓库', '行业平均'],
+textStyle: {
+color: '#ffffff'
+},
+bottom: 10
+},
+radar: {
+indicator: indicator,
+axisName: {
+color: '#ffffff'
+},
+splitLine: {
+lineStyle: {
+color: 'rgba(100, 200, 255, 0.2)'
+}
+},
+splitArea: {
+areaStyle: {
+color: ['rgba(30, 30, 40, 0.8)', 'rgba(35, 35, 45, 0.8)']
+}
+},
+axisLine: {
+lineStyle: {
+color: 'rgba(100, 200, 255, 0.3)'
+}
+}
+},
+series: [
+{
+name: '仓库竞争力',
+type: 'radar',
+areaStyle: {
+color: 'rgba(102, 126, 234, 0.4)'
+},
+lineStyle: {
+color: '#667eea',
+width: 2
+},
+data: [
+{
+value: currentRepoData.map(dim => dim.value),
+name: '当前仓库'
+}
+]
+},
+{
+name: '行业平均',
+type: 'radar',
+areaStyle: {
+color: 'rgba(118, 75, 162, 0.4)'
+},
+lineStyle: {
+color: '#764ba2',
+width: 2
+},
+data: [
+{
+value: industryAvgData.map(dim => dim.value),
+name: '行业平均'
+}
+]
+}
+]
+};
+chart.setOption(option);
+}
+function createWordCloudChart(wordcloudData) {
+const chartDom = document.getElementById('wordcloudChart');
+if (!chartDom) {
+console.error('Wordcloud chart container not found');
+return;
+}
+try {
+const chart = echarts.init(chartDom);
+console.log('Wordcloud chart initialized');
+const keywords = [
+{ name: 'programming', value: 5 },
+{ name: 'tutorial', value: 4 },
+{ name: 'javascript', value: 3 },
+{ name: 'python', value: 3 },
+{ name: 'awesome', value: 2 },
+{ name: 'open-source', value: 2 },
+{ name: 'code', value: 4 },
+{ name: 'development', value: 3 },
+{ name: 'software', value: 3 },
+{ name: 'technology', value: 2 },
+{ name: 'github', value: 5 },
+{ name: 'repository', value: 4 },
+{ name: 'star', value: 3 },
+{ name: 'fork', value: 3 },
+{ name: 'contribute', value: 2 }
+];
+const themeColor = getThemeColor();
+const isDarkTheme = document.body.classList.contains('dark-theme');
+const backgroundColor = isDarkTheme ? 'rgba(30, 30, 40, 0.5)' : 'rgba(248, 250, 252, 0.95)';
+const option = {
+backgroundColor: backgroundColor,
+tooltip: {
+trigger: 'item',
+backgroundColor: themeColor.tooltipBg,
+borderColor: themeColor.tooltipBorder,
+textStyle: {
+color: '#fff'
+}
+},
+series: [
+{
+type: 'wordCloud',
+shape: 'circle',
+left: 'center',
+top: 'center',
+width: '80%',
+height: '80%',
+sizeRange: [12, 60],
+rotationRange: [-90, 90],
+rotationStep: 45,
+gridSize: 8,
+textStyle: {
+fontFamily: 'sans-serif',
+fontWeight: 'bold',
+color: function () {
+if (document.body.classList.contains('dark-theme')) {
+return 'rgb(' + [
+Math.round(Math.random() * 100 + 150),
+Math.round(Math.random() * 100 + 150),
+Math.round(Math.random() * 100 + 200)
+].join(',') + ')';
+} else {
+return 'rgb(' + [
+Math.round(Math.random() * 100 + 50),
+Math.round(Math.random() * 100 + 50),
+Math.round(Math.random() * 100 + 100)
+].join(',') + ')';
+}
+}
+},
+emphasis: {
+focus: 'self',
+textStyle: {
+shadowBlur: 10,
+shadowColor: '#333'
+}
+},
+data: keywords
+}
+]
+};
+chart.setOption(option);
+console.log('Wordcloud chart option set');
+} catch (error) {
+console.error('Error creating wordcloud chart:', error);
+}
+}
+function createContributorChart(repo) {
+const chartDom = document.getElementById('contributorChart');
+if (!chartDom) {
+console.error('Contributor chart container not found');
+return;
+}
+try {
+const chart = echarts.init(chartDom);
+console.log('Contributor chart initialized');
+console.log('Current repo:', repo.basic_info.full_name);
+fetch('./repo_analysis_data/contributor_geo_data.json')
+.then(response => response.json())
+.then(contributorData => {
+console.log('Contributor data loaded:', contributorData.length);
+const repoContributors = contributorData.find(item =>
+item.repo_name && repo && repo.basic_info && repo.basic_info.full_name &&
+item.repo_name.toLowerCase() === repo.basic_info.full_name.toLowerCase()
+);
+console.log('Repo contributors found:', repoContributors);
+let contributors;
+if (repoContributors && repoContributors.contributor_locations && repoContributors.contributor_locations.length > 0) {
+contributors = repoContributors.contributor_locations
+.sort((a, b) => b.contributions - a.contributions)
+.slice(0, 10)
+.map((c, index) => {
+return {
+name: c.contributor,
+value: c.contributions || 0,
+itemStyle: {
+color: getLanguageColor(['JavaScript', 'Python', 'Java', 'TypeScript', 'Go', 'C++', 'C', 'C#'][index % 8])
+}
+};
+});
+console.log('Using real contributor data:', contributors.length);
+} else {
+contributors = [
+{ name: 'user1', value: 100, itemStyle: { color: '#ffd3b6' } },
+{ name: 'user2', value: 80, itemStyle: { color: '#ffaaa5' } },
+{ name: 'user3', value: 60, itemStyle: { color: '#ff8c94' } },
+{ name: 'user4', value: 50, itemStyle: { color: '#a8e6cf' } },
+{ name: 'user5', value: 40, itemStyle: { color: '#dcedc1' } },
+{ name: 'user6', value: 30, itemStyle: { color: '#ffd93d' } },
+{ name: 'user7', value: 20, itemStyle: { color: '#ff9a76' } },
+{ name: 'user8', value: 15, itemStyle: { color: '#84a59d' } },
+{ name: 'user9', value: 10, itemStyle: { color: '#f7b801' } },
+{ name: 'user10', value: 5, itemStyle: { color: '#f6bd60' } }
+];
+console.log('Using mock contributor data');
+}
+const themeColor = getThemeColor();
+const isDarkTheme = document.body.classList.contains('dark-theme');
+const backgroundColor = isDarkTheme ? 'rgba(30, 30, 40, 0.5)' : 'rgba(248, 250, 252, 0.95)';
+const option = {
+backgroundColor: backgroundColor,
+tooltip: {
+trigger: 'axis',
+axisPointer: {
+type: 'shadow'
+},
+backgroundColor: themeColor.tooltipBg,
+borderColor: themeColor.tooltipBorder,
+textStyle: {
+color: '#fff'
+}
+},
+grid: {
+left: '3%',
+right: '4%',
+bottom: '3%',
+containLabel: true
+},
+xAxis: {
+type: 'value',
+axisLine: {
+lineStyle: {
+color: themeColor.textSecondary
+}
+},
+axisLabel: {
+color: themeColor.textColor
+},
+splitLine: {
+lineStyle: {
+color: 'rgba(100, 200, 255, 0.1)'
+}
+}
+},
+yAxis: {
+type: 'category',
+data: contributors.map(c => c.name),
+axisLine: {
+lineStyle: {
+color: themeColor.textSecondary
+}
+},
+axisLabel: {
+color: themeColor.textColor,
+fontSize: 12,
+formatter: function(value) {
+return value.length > 10 ? value.substring(0, 10) + '...' : value;
+}
+},
+splitLine: {
+show: false
+}
+},
+series: [
+{
+name: '贡献数',
+type: 'bar',
+data: contributors,
+itemStyle: {
+borderRadius: [0, 5, 5, 0]
+},
+emphasis: {
+itemStyle: {
+shadowBlur: 10,
+shadowColor: 'rgba(102, 126, 234, 0.5)'
+}
+}
+}
+]
+};
+chart.setOption(option);
+console.log('Contributor chart option set');
+})
+.catch(error => {
+console.error('Error loading contributor data:', error);
+const contributors = [
+{ name: 'user1', value: 100, itemStyle: { color: '#ffd3b6' } },
+{ name: 'user2', value: 80, itemStyle: { color: '#ffaaa5' } },
+{ name: 'user3', value: 60, itemStyle: { color: '#ff8c94' } },
+{ name: 'user4', value: 50, itemStyle: { color: '#a8e6cf' } },
+{ name: 'user5', value: 40, itemStyle: { color: '#dcedc1' } }
+];
+const themeColor = getThemeColor();
+const isDarkTheme = document.body.classList.contains('dark-theme');
+const backgroundColor = isDarkTheme ? 'rgba(30, 30, 40, 0.5)' : 'rgba(248, 250, 252, 0.95)';
+const option = {
+backgroundColor: backgroundColor,
+tooltip: {
+trigger: 'axis',
+axisPointer: {
+type: 'shadow'
+},
+backgroundColor: themeColor.tooltipBg,
+borderColor: themeColor.tooltipBorder,
+textStyle: {
+color: '#fff'
+}
+},
+grid: {
+left: '3%',
+right: '4%',
+bottom: '3%',
+containLabel: true
+},
+xAxis: {
+type: 'value'
+},
+yAxis: {
+type: 'category',
+data: contributors.map(c => c.name)
+},
+series: [
+{
+name: '贡献数',
+type: 'bar',
+data: contributors
+}
+]
+};
+chart.setOption(option);
+});
+} catch (error) {
+console.error('Error creating contributor chart:', error);
+}
+}
+function generateLanguageLegend() {
+const legendContainer = document.getElementById('languageLegend');
+const colorMap = {
+'JavaScript': '#ffd3b6',
+'Python': '#ffaaa5',
+'Java': '#ff8c94',
+'TypeScript': '#a8e6cf',
+'Go': '#dcedc1',
+'C++': '#c7d5e8',
+'C': '#ff9a76',
+'C#': '#84a59d',
+'Ruby': '#f7b801',
+'PHP': '#f6bd60',
+'Swift': '#f5cac3',
+'Kotlin': '#f28482',
+'Rust': '#81b29a',
+'Dart': '#f8edeb',
+'Shell': '#9a8c98',
+'HTML': '#c9ada7',
+'CSS': '#d8e2dc',
+'Markdown': '#a8bedf',
+'JSON': '#f0efeb'
+};
+legendContainer.innerHTML = '';
+Object.entries(colorMap).forEach(([language, color]) => {
+const legendItem = document.createElement('div');
+legendItem.style.display = 'flex';
+legendItem.style.alignItems = 'center';
+legendItem.style.marginBottom = '8px';
+legendItem.style.fontSize = '12px';
+const colorBox = document.createElement('div');
+colorBox.style.width = '15px';
+colorBox.style.height = '15px';
+colorBox.style.backgroundColor = color;
+colorBox.style.borderRadius = '3px';
+colorBox.style.marginRight = '8px';
+colorBox.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+const languageName = document.createElement('span');
+languageName.textContent = language;
+const isDarkTheme = document.body.classList.contains('dark-theme');
+languageName.style.color = isDarkTheme ? '#ffffff' : '#333333';
+legendItem.appendChild(colorBox);
+legendItem.appendChild(languageName);
+legendContainer.appendChild(legendItem);
+});
+}
+function initEventListeners() {
+document.getElementById('refreshBtn').addEventListener('click', () => {
+init();
+});
+document.getElementById('themeToggle').addEventListener('click', () => {
+toggleTheme();
+});
+document.getElementById('closeModal').addEventListener('click', () => {
+document.getElementById('detailModal').classList.remove('show');
+});
+window.addEventListener('click', (e) => {
+const modal = document.getElementById('detailModal');
+if (e.target === modal) {
+modal.classList.remove('show');
+}
+});
+document.getElementById('setAsCenterBtn').addEventListener('click', () => {
+const modal = document.getElementById('detailModal');
+const currentRepoName = modal.querySelector('.detail-section .detail-item:nth-child(2) .value').textContent;
+selectRepo(currentRepoName);
+modal.classList.remove('show');
+});
+const countSlider = document.getElementById('repoCount');
+const countValue = document.getElementById('repoCountValue');
+const applyBtn = document.getElementById('applyCountBtn');
+countSlider.addEventListener('input', () => {
+countValue.textContent = countSlider.value;
+});
+applyBtn.addEventListener('click', () => {
+repoCount = parseInt(countSlider.value);
+if (currentRepo) {
+generateGraph();
+}
+});
+}
+function getThemeColor() {
+const body = document.body;
+if (body.classList.contains('dark-theme')) {
+return {
+textColor: '#ffffff',
+textSecondary: '#a0a0a0',
+tooltipBg: 'rgba(20, 20, 30, 0.95)',
+tooltipBorder: 'rgba(100, 200, 255, 0.3)'
+};
+} else {
+return {
+textColor: '#333333',
+textSecondary: '#64748b',
+tooltipBg: 'rgba(20, 20, 30, 0.95)',
+tooltipBorder: 'rgba(100, 149, 237, 0.3)'
+};
+}
+}
+function toggleTheme() {
+const body = document.body;
+const themeToggle = document.getElementById('themeToggle');
+body.classList.toggle('dark-theme');
+if (body.classList.contains('dark-theme')) {
+themeToggle.innerHTML = '☀️';
+} else {
+themeToggle.innerHTML = '🌙';
+}
+if (currentRepo) {
+selectRepo(currentRepo.basic_info.full_name);
+}
+generateLanguageLegend();
+}
+window.addEventListener('DOMContentLoaded', () => {
+initEventListeners();
+init();
+generateLanguageLegend();
+});
+</script>
+</body>
+</html>
